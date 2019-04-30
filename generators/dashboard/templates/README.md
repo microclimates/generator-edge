@@ -1,0 +1,5 @@
+# <%- pluginName %>
+
+## Installation 
+
+...

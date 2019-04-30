@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Loren West",
+      "authorEmail": "github@lorenwest.com",
+      "authorUrl": "https://www.linkedin.com/in/LorenWest"
+    }
+  }
+}

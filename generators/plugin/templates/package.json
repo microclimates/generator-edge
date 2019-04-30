@@ -1,0 +1,21 @@
+{
+  "name": "",
+  "pluginName": "",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "",
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "keywords": [],
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "npm": ">= 8.0.0"
+  },
+  "scripts": {
+  },
+  "license": ""
+}

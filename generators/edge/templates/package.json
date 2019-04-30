@@ -1,0 +1,13 @@
+{
+  "name": "${siteId}",
+  "version": "1.0.0",
+  "description": "${siteName}",
+  "dependencies": {
+    "iot-edge": "~2.2.0"
+  },
+  "scripts": {
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down -t 1",
+    "restart": "docker-compose restart"
+  }
+}

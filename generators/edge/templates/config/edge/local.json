@@ -1,0 +1,14 @@
+{
+  "iot-edge": {
+    "site": {
+      "id": "${siteId}",
+      "name": "${siteName}",
+      "TZ": "${TZ}"
+    },
+    "externalExposure": {
+      "httpPort": ${httpPort},
+      "mqttPort": ${mqttPort},
+      "mqttWebSocketPort": ${mqttWebSocketPort}
+    }
+  }
+}
