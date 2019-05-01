@@ -1,17 +1,19 @@
 {
-  "name": "",
-  "pluginName": "",
+  "name": "${pkgName}",
+  "pluginName": "${pluginName}",
   "version": "1.0.0",
-  "description": "",
-  "homepage": "",
+  "description": "${description}",
+  "homepage": "${homepage}",
   "author": {
-    "name": "",
-    "email": "",
-    "url": ""
+    "name": "${author.name}",
+    "email": "${author.email}",
+    "url": "${author.url}"
   },
-  "keywords": [],
+  "keywords": ${JSON.stringify(keywords)},
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "watch": "^1.0.2"
+  },
   "engines": {
     "npm": ">= 8.0.0"
   },

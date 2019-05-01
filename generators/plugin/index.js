@@ -1,16 +1,17 @@
-/* Microclimates Plugin Generator */
-
+/* Edge Server Plugin Generator */
 "use strict";
 const Generator = require("yeoman-generator");
 const _ = require("lodash");
 const path = require("path");
 const deepExtend = require('deep-extend');
-const mkdirp = require('mkdirp');
+const chalk = require('chalk');
+const util = require('util');
 
 module.exports = class extends Generator {
 
   initializing() {
 
+    // This should never be called if not first run
     this.firstRun = !this.config.get("projectType");
     let pkg = this.fs.readJSON(this.destinationPath("package.json"), {});
 
@@ -86,13 +87,6 @@ module.exports = class extends Generator {
 
   default() {
 
-    // Create the plugin directory and change destination root if not already here
-    if (path.basename(this.destinationPath()) !== this.model.pkgName) {
-      this.log(`Creating folder ${this.model.pkgName}`);
-      mkdirp(this.model.pkgName);
-      this.destinationRoot(this.destinationPath(this.model.pkgName));
-    }
-
     this.composeWith(require.resolve('generator-license'), {
       name: this.model.authorName,
       email: this.model.authorEmail,
@@ -102,34 +96,28 @@ module.exports = class extends Generator {
     
   }
 
-  writing() {
+  async writing() {
 
-    // Copy all files on first run
-    if (this.firstRun) {
-      this.fs.copy(this.templatePath('**'), this.destinationPath());
-    }
+    // Obtain a silent mem-fs store
+    // var store = require("mem-fs").create();
+    // var fs = require("mem-fs-editor").create(store);
+    var fs = this.fs;
 
-    // Add or update the package.json file
-    let pkg = this.fs.readJSON(
-      this.destinationPath("package.json"), 
-      this.fs.readJSON(this.templatePath("package.json"),{})
-    );
-    pkg.name = this.model.pkgName;
-    pkg.description = this.model.description;
-    pkg.pluginName = this.model.pluginName;
-    pkg.homepage = this.model.homepage;
-    pkg.keywords = this.model.keywords;
-    pkg.author.name = this.model.authorName;
-    pkg.author.email = this.model.authorEmail;
-    pkg.author.url = this.model.authorUrl;
-    this.fs.write(this.destinationPath("package.json"), JSON.stringify(pkg,null,2));
+    // Start by copying all files
+    fs.copy(this.templatePath('**'), this.destinationPath(), { globOptions: { dot: true } });
 
-    // Apply template to README.md file
-    if (this.firstRun) {
-      let readmeTemplate = _.template(this.fs.read(this.templatePath("README.md")));
-      this.fs.write(this.destinationPath("README.md"), readmeTemplate(this.model));
-    }
+    // Apply data model to template files
+    const templateFiles = [
+      "package.json", "README.md"
+    ]
+    templateFiles.forEach((filename)=> {
+      let tmpl = _.template(fs.read(this.templatePath(filename)));
+      fs.write(this.destinationPath(filename), tmpl(this.model));
+    });
 
+    // Commit changes
+    // const commit = util.promisify(fs.commit.bind(fs));
+    // await commit([]);
   }
 
   end() {
@@ -137,28 +125,11 @@ module.exports = class extends Generator {
       this.config.set("projectType", "plugin");
       this.config.save();
     }
+
+    this.log("");
+    this.log(`Your plugin has been created.`);
+    this.log(`Run ${chalk.red("yo edge")} to start building plugin components.`)
+    this.log("");
   }
 
 };
-
-/* Yeoman run groups - special method names that get executed in groups
- *  https://yeoman.io/authoring/running-context.html
- *
- * initializing - Your initialization methods (checking current project state, getting configs, etc)
- * prompting - Where you prompt users for options (where you’d call this.prompt())
- * configuring - Saving configurations and configure the project (creating .editorconfig files and other metadata files)
- * default (+others not starting with _) - If the method name doesn’t match a priority, it will be pushed to this group.
- * writing - Where you write the generator specific files (routes, controllers, etc)
- * conflicts - Where conflicts are handled (used internally)
- * install - Where installations are run (npm, bower)
- * end - Called last, cleanup, say good bye, etc
- *
- * async initializing() {}
- * async prompting() {}
- * async configuring() {}
- * async default() {}
- * async writing() {}
- * async conflicts() {}
- * async install() {}
- * async end() {}
- */

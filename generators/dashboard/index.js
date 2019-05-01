@@ -34,25 +34,3 @@ module.exports = class extends Generator {
   }
 
 };
-
-/* Yeoman run groups - special method names that get executed in groups
- *  https://yeoman.io/authoring/running-context.html
- *
- * initializing - Your initialization methods (checking current project state, getting configs, etc)
- * prompting - Where you prompt users for options (where you’d call this.prompt())
- * configuring - Saving configurations and configure the project (creating .editorconfig files and other metadata files)
- * default (+others not starting with _) - If the method name doesn’t match a priority, it will be pushed to this group.
- * writing - Where you write the generator specific files (routes, controllers, etc)
- * conflicts - Where conflicts are handled (used internally)
- * install - Where installations are run (npm, bower)
- * end - Called last, cleanup, say good bye, etc
- *
- * async initializing() {}
- * async prompting() {}
- * async configuring() {}
- * async default() {}
- * async writing() {}
- * async conflicts() {}
- * async install() {}
- * async end() {}
- */

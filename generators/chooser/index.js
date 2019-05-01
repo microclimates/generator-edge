@@ -2,17 +2,17 @@
 const Generator = require("yeoman-generator");
 
 const firstRunGenerators = [
-  { name: '1 - Edge Server', value: 'edge' },
+  { name: '1 - Edge Server', value: 'server' },
   { name: '2 - Edge Server Plugin', value: 'plugin' },
 ];
 
 const pluginGenerators = [
-  { name: '1 - Dashboards', value: 'dashboards' },
-  { name: '2 - Devices', value: 'devices' },
+  { name: '1 - Dashboards', value: 'dashboard' },
+  { name: '2 - Devices', value: 'device' },
 ];
 
 const edgeGenerators = [
-  { name: '1 - Update edge server', value: 'edge' },
+  { name: '1 - Update edge server', value: 'server' },
 ];
 
 module.exports = class extends Generator {

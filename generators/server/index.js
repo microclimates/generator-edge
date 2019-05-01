@@ -91,7 +91,7 @@ module.exports = class extends Generator {
     this.model.mqttWebSocketPort = DEFAULT_MQTT_WS_PORT + (this.model.mqttPort - DEFAULT_MQTT_PORT);
 
     // Start by copying all files
-    fs.copy(this.templatePath('**'), this.destinationPath());
+    fs.copy(this.templatePath('**'), this.destinationPath(), { globOptions: { dot: true } });
 
     // Apply data model to template files
     const templateFiles = [
