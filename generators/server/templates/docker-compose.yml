@@ -114,7 +114,7 @@ services:
       - './data/loki:/tmp/loki'
     restart: always
   edge:
-    image: 'microclimates/iot-edge-server:2.3.0'
+    image: 'microclimates/iot-edge-server:2.3.2'
     container_name: edge
     env_file: .env
     environment:
