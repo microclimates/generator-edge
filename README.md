@@ -1,19 +1,30 @@
-# Yeoman generators for Microclimates plugins
+# Yeoman generators for the iot-edge server
 
-## Installation
+## Quick Start
 
-First, install [Yeoman](http://yeoman.io) and generator-mc-plugin using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)).
+### Prerequisites
+
+  * [NodeJS](https://nodejs.org)
+  * [Docker](https://www.docker.com/products) - Uses `docker-compose` for coordination
+
+### Installation
 
 ```bash
-npm install -g yo
-npm install -g generator-mc-plugin
+npm install -g yo generator-edge
 ```
 
-Then generate your new project:
+### Running
+
+To generate a new edge server or server plugin, run the following in a new directory
 
 ```bash
-yo mc-plugin
-yo mc-plugin:dashboard
+yo edge
+```
+
+To add components to an existing edge server plugin, run again in the plugin directory
+
+```bash
+yo edge
 ```
 
 ## License

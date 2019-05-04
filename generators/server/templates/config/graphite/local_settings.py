@@ -213,5 +213,8 @@ if (os.getenv("MEMCACHE_HOST") is not None):
 if (os.getenv("DEFAULT_CACHE_DURATION") is not None):
     DEFAULT_CACHE_DURATION = int(os.getenv("CACHE_DURATION"))
 
-URL_PREFIX = '/edge/graphite'
-TIME_ZONE = 'America/Los_Angeles'
+if (os.getenv("SITE_ID") is not None):
+    URL_PREFIX = "/" + os.getenv("SITE_ID") + "/graphite"
+
+if (os.getenv("TZ") is not None):
+    TIME_ZONE = os.getenv("TZ")

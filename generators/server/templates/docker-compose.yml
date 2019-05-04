@@ -3,26 +3,28 @@ services:
   nginx:
     image: 'nginx:stable-alpine'
     container_name: nginx
-    env_file: edge-env
+    env_file: .env
     networks:
       - dmz
       - internal
     ports:
-      - '${httpPort}:80'
+      - '${HTTP_PORT}:80'
     volumes:
-      - './node_modules/iot-edge/cdn:/mnt/cdn'
       - './config/nginx/nginx.conf:/etc/nginx/nginx.conf'
       - './config/nginx/iot-edge.conf:/etc/nginx/iot-edge.conf'
+      - './config/nginx/iot-edge.conf.template:/etc/nginx/iot-edge.conf.template'
+      - './config/nginx/startup.sh:/etc/nginx/startup.sh'
     restart: always
     depends_on:
       - nodered
       - graphite
       - grafana
       - edge
+    command: ['sh', '-c', '/etc/nginx/startup.sh']
   graphite:
     image: 'graphiteapp/graphite-statsd:1.1.4'
     container_name: graphite
-    env_file: edge-env
+    env_file: .env
     networks:
       - internal
     # ports:
@@ -43,21 +45,21 @@ services:
   mqtt:
     image: 'eclipse-mosquitto:1.5'
     container_name: mqtt
-    env_file: edge-env
+    env_file: .env
     networks:
       - dmz
       - internal
     ports:
-      - '${mqttPort}:1883'
-      - '${mqttWebSocketPort}:9001'
+      - '${MQTT_PORT}:1883'
+      - '${MQTT_WS_PORT}:9001'
     volumes:
       - './config/mqtt:/mosquitto/config'
       - './data/mqtt:/mosquitto/data'
     restart: always
   nodered:
-    image: 'microclimates/iot-edge-node-red:1.0.4'
+    image: 'microclimates/iot-edge-node-red:1.0.6'
     container_name: nodered
-    env_file: edge-env
+    env_file: .env
     depends_on:
       - mqtt
     networks:
@@ -71,10 +73,9 @@ services:
     depends_on:
       - "mqtt"
   grafana:
-    image: 'grafana/grafana:6.1.4'
+    image: 'grafana/grafana:6.1.6'
     container_name: grafana
-    env_file:
-      - edge-env
+    env_file: .env
     networks:
       - internal
     # ports:
@@ -84,10 +85,9 @@ services:
     volumes:
       - './config/grafana:/etc/grafana'
       - './data/grafana/log:/var/log/grafana'
-      - './data/grafana/plugins:/var/lib/grafana/plugins'
       - './data/grafana:/var/lib/grafana'
-      - './node_modules/iot-edge/cdn/grafana/6.1.4/index.html:/usr/share/grafana/public/views/index.html'
     restart: always
+    entrypoint: ['sh', '-c', '/etc/grafana/startup.sh']
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
@@ -114,28 +114,28 @@ services:
       - './data/loki:/tmp/loki'
     restart: always
   edge:
-    image: 'microclimates/iot-edge-node-js:1.0.4'
+    image: 'microclimates/iot-edge-server:2.3.0'
     container_name: edge
-    env_file:
-      - edge-env
+    env_file: .env
+    environment:
+      NODE_CONFIG_DIR: /mnt/config/edge
     networks:
       - internal
+    depends_on:
+      - nodered
+      - graphite
+      - grafana
     # ports:
     #   - '9002:9002'
     volumes:
-      - '.:/iot-edge'
-    depends_on:
-      - 'grafana'
-      - 'nodered'
-      - 'graphite'
-      - 'promtail'
+      - '.:/mnt'
+      # For iot-edge server development:
+      #   git clone https://github.com/microclimates/iot-edge.git
+      #   Uncomment the line below and run "npm restart"
+      #   Run "docker-compose restart edge" to reload changes
+      # - '/path/to/cloned/iot-edge:/usr/local/lib/node_modules/iot-edge'
+
     restart: always
-    environment:
-      - NODE_CONFIG_DIR=./config/edge
-    working_dir: /iot-edge
-    entrypoint:
-      -  node
-      -  node_modules/iot-edge/app.js
 networks:
   dmz:
     driver: bridge

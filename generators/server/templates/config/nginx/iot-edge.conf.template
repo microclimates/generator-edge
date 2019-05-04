@@ -36,6 +36,11 @@ server {
     proxy_set_header Connection $connection_upgrade;
   }
 
+  # Node Red HTTP API node
+  location /SITE_ID/api/plugin/ {
+    proxy_pass http://nodered;
+  }
+
   # Remove /SITE_ID from grafana urls
   location /SITE_ID/ {
     rewrite ^/SITE_ID(.*)$ $1;
@@ -44,7 +49,6 @@ server {
   # Default to grafana
   location / {
     proxy_pass http://grafana;
-    proxy_set_header X-WEBAUTH-USER admin;
     proxy_intercept_errors on;
   }
 

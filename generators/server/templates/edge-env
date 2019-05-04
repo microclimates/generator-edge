@@ -1,3 +1,0 @@
-SITE_ID=${siteId}
-SITE_NAME=${siteName}
-TZ=${TZ}

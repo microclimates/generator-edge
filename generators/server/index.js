@@ -5,12 +5,12 @@ const Generator = require("yeoman-generator");
 const _ = require("lodash");
 const deepExtend = require('deep-extend');
 const mtz = require('moment-timezone');
-const LOCAL_JSON_FILENAME = "./config/edge/local.json";
 const DEFAULT_HTTP_PORT = 8000;
 const DEFAULT_MQTT_PORT = 1883;
 const DEFAULT_MQTT_WS_PORT = 9001;
 const chalk = require('chalk');
 const util = require('util');
+const ini = require('ini');
 
 module.exports = class extends Generator {
   
@@ -18,29 +18,27 @@ module.exports = class extends Generator {
 
     this.firstRun = !this.config.get("projectType");
 
+    // Get prior model values from the edge-env file
+    let edgeEnv = {};
+    if (!this.firstRun) {
+      try {
+        let iniFile = this.fs.readJSON('./edge-env');
+        edgeEnv = ini.parse(iniFile);
+      } catch(e){}
+    }
+
     // Define the template data model for this generator type
     this.model = {
       proceed: true,
-      siteId: 'edge',
-      siteName: "Edge Site",
-      httpPort: DEFAULT_HTTP_PORT,
-      mqttPort: DEFAULT_MQTT_PORT,
-      mqttWebSocketPort: DEFAULT_MQTT_WS_PORT,
-      TZ: mtz.tz.guess()
+      siteId: edgeEnv.SITE_ID || 'edge',
+      siteName: edgeEnv.SITE_NAME || "Edge Site",
+      siteFQDN: edgeEnv.SITE_FQDN || "localhost",
+      httpPort: edgeEnv.HTTP_PORT || DEFAULT_HTTP_PORT,
+      mqttPort: edgeEnv.MQTT_PORT || DEFAULT_MQTT_PORT,
+      mqttWebSocketPort: edgeEnv.MQTT_WS_PORT || DEFAULT_MQTT_WS_PORT,
+      TZ: edgeEnv.TZ || mtz.tz.guess()
     }
 
-    // Better defaults on subsequent runs
-    if (!this.firstRun) {
-      try {
-        let localJSON = this.fs.readJSON(LOCAL_JSON_FILENAME)["iot-edge"];
-        this.model.siteId = localJSON.site.id;
-        this.model.siteName = localJSON.site.name;
-        this.model.TZ = localJSON.site.TZ;
-        this.model.httpPort = localJSON.externalExposure.httpPort;
-        this.model.mqttPort = localJSON.externalExposure.mqttPort;
-        this.model.mqttWebSocketPort = localJSON.externalExposure.mqttWebSocketPort;
-      } catch(e){}
-    }
   }
 
   async prompting() {
@@ -61,6 +59,11 @@ module.exports = class extends Generator {
         name: 'siteId',
         message: 'What should the site ID be (short identifier)',
         default: this.model.siteId
+      },
+      {
+        name: 'siteFQDN',
+        message: 'What is the network name or IP address for this site',
+        default: this.model.siteFQDN
       },
       {
         name: 'httpPort',
@@ -95,8 +98,7 @@ module.exports = class extends Generator {
 
     // Apply data model to template files
     const templateFiles = [
-      "package.json", "README.md", "docker-compose.yml", "edge-env",
-      "config/nginx/iot-edge.conf", "./config/edge/local.json"
+      ".env"
     ]
     templateFiles.forEach((filename)=> {
       let tmpl = _.template(fs.read(this.templatePath(filename)));
@@ -107,19 +109,14 @@ module.exports = class extends Generator {
     const commit = util.promisify(fs.commit.bind(fs));
     await commit([]);
 
-    // Install iot-edge NPM package
-    this.log("");
-    this.log(`Installing the latest ${chalk.red("iot-edge")} package from NPM`)
-    this.log("");
-    this.spawnCommandSync('npm', ['install', '--silent', 'iot-edge'], {cwd:process.cwd(), shell:true});
-    this.log("");
-    this.log(`Your site has been created.`);
-    this.log(`Run ${chalk.red("npm start")} to start, then open ${chalk.red("http://localhost:" + this.model.httpPort)} to view.`)
-    this.log("");
-
   }
 
   end() {
+
+    this.log("");
+    this.log(`Your site has been created.`);
+    this.log(`Run ${chalk.red("npm start")} to start, then open ${chalk.red("http://" + this.model.siteFQDN + ":" + this.model.httpPort)} to view.`)
+    this.log("");
 
     if (this.firstRun) {
       this.config.set("projectType", "edge");

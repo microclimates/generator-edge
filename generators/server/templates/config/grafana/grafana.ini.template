@@ -7,15 +7,15 @@ plugins = /plugins
 level = Warn
 
 [session]
-cookie_name = grafana_sess_edge
+cookie_name = grafana_sess_SITE_ID
 
 [server]
-domain = localhost
+domain = SITE_FQDN
 enable_gzip = true
-root_url = %(protocol)s://%(domain)s:%(http_port)s/edge/
+root_url = %(protocol)s://SITE_FQDN:HTTP_PORT/SITE_ID/
 
 [auth.anonymous]
-enabled = false
+enabled = true
 
 [auth.proxy]
 enabled = true

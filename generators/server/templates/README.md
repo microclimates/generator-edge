@@ -1,6 +1,6 @@
-# ${siteName}
+# Edge Server
 
-This is an [IoT Edge Server](https://github.com/microclimates/iot-edge) for the ${siteName} site
+This is a deployment of the [IoT Edge](https://github.com/microclimates/iot-edge) server project
 
 ## Running the server
 
