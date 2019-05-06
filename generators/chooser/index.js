@@ -11,10 +11,6 @@ const pluginGenerators = [
   { name: '2 - Devices', value: 'device' },
 ];
 
-const edgeGenerators = [
-  { name: '1 - Update edge server', value: 'server' },
-];
-
 module.exports = class extends Generator {
 
   async prompting() {
@@ -23,7 +19,7 @@ module.exports = class extends Generator {
     let generatorType = this.config.get("projectType");
     var generators = firstRunGenerators;
     if (generatorType == "edge") {
-      generators = edgeGenerators;
+      return this.composeWith(require.resolve("../server"), {});
     }
     else if (generatorType == "plugin") {
       generators = pluginGenerators;

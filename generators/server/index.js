@@ -43,13 +43,22 @@ module.exports = class extends Generator {
 
   async prompting() {
 
-    const prompts = [
+    let prompts = [
       {
         type: 'confirm',
         name: 'proceed',
-        message: 'Install an edge server in this directory',
+        message: this.firstRun ? 'Install an edge server in this directory' : 'Update site config for ' + this.model.siteName,
         default: true
-      },
+      }
+    ]
+    deepExtend(this.model, await this.prompt(prompts));
+
+    if (!this.model.proceed) {
+      this.log(`OK`);
+      process.exit(1);
+    }
+
+    prompts = [
       {
         name: 'siteName',
         message: 'What should I call this site',
@@ -78,10 +87,7 @@ module.exports = class extends Generator {
     ]
 
     deepExtend(this.model, await this.prompt(prompts));
-    if (!this.model.proceed) {
-      this.log('OK - not installing an edge server here');
-      process.exit(1);
-    }
+
   }
 
   async writing() {
