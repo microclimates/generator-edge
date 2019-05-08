@@ -1,0 +1,99 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /promdata/positions.yaml
+
+client:
+  url: http://loki:3100/api/prom/push
+
+scrape_configs:
+
+  - job_name: graphite1
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: graphite
+        __path__: /log/graphite/*log
+  - job_name: graphite2
+    entry_parser: raw
+    static_configs:
+    - targets: 
+        - localhost
+      labels:
+        service: graphite
+        __path__: /log/graphite/*/*log
+  - job_name: graphite3
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: graphite
+        __path__: /log/graphite/messages
+
+  - job_name: nginx
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: nginx
+        __path__: /log/nginx/*log
+
+  - job_name: edge
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: edge
+        __path__: /log/edge/*log
+
+  - job_name: mqtt
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: mqtt
+        __path__: /log/mqtt/*log
+
+  - job_name: grafana
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: grafana
+        __path__: /log/grafana/*log
+
+  - job_name: nodered
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: nodered
+        __path__: /log/nodered/*log
+
+  - job_name: promtail
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: promtail
+        __path__: /log/promtail/*log
+
+  - job_name: loki
+    entry_parser: raw
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        service: loki
+        __path__: /log/loki/*log
