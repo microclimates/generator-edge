@@ -1,7 +1,7 @@
-# ${pluginName}
+# ${description}
 
 ## Installation
 
 ...
 
-Copyright (c) ${new Date().getFullYear()} [${authorName}](${authorUrl})
+Copyright (c) ${new Date().getFullYear()} ${author.name}

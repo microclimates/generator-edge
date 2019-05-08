@@ -5,7 +5,10 @@ const _ = require("lodash");
 const path = require("path");
 const deepExtend = require('deep-extend');
 const chalk = require('chalk');
-const util = require('util');
+const mtz = require('moment-timezone');
+const DEFAULT_HTTP_PORT = 8000;
+const DEFAULT_MQTT_PORT = 1883;
+const DEFAULT_MQTT_WS_PORT = 9001;
 
 module.exports = class extends Generator {
 
@@ -17,16 +20,13 @@ module.exports = class extends Generator {
 
     // Define the template data model for this generator type
     this.model = {
-      pluginName: pkg.pluginName || "My Plugin Name",
       pkgName: pkg.name || path.basename(this.destinationRoot()),
       description: pkg.description || "",
-      pkgVersion: pkg.version || "1.0.0",
-      homepage: pkg.homepage || "",
-      keywords: pkg.keywords || [],
+      pkgVersion: pkg.version || "0.0.1",
       author: pkg.author || {
-        name: this.user.git.name() || "",
-        email: this.user.git.email() || "",
-        url: ""
+        name: this.user.git.name() || null,
+        email: "",
+        website: ""
       },
       license: pkg.license || "MIT",
     }
@@ -38,48 +38,14 @@ module.exports = class extends Generator {
     const prompts = [
       {
         name: "pkgName",
-        message: "Module name",
+        message: "Plugin name",
         default: this.model.pkgName,
       },
       {
-        name: "pluginName",
-        message: "Plugin name",
-        default: this.model.pluginName,
-      },
-      {
         name: "description",
-        message: "Description",
+        message: "Plugin Description",
         default: this.model.description,
-      },
-
-      {
-        name: 'homepage',
-        message: 'Project homepage url',
-        default: this.model.homepage,
-      },
-      {
-        name: 'authorName',
-        message: "Author's Name",
-        default: this.model.author.name,
-      },
-      {
-        name: 'authorEmail',
-        message: "Author's Email",
-        default: this.model.author.email,
-      },
-      {
-        name: 'authorUrl',
-        message: "Author's Homepage",
-        default: this.model.author.url,
-      },
-      {
-        name: 'keywords',
-        message: 'Package keywords (comma to split)',
-        default: this.model.keywords.join(','),
-        filter(words) {
-          return words.split(/\s*,\s*/g);
-        }
-      },
+      }
     ];
 
     deepExtend(this.model, await this.prompt(prompts));
@@ -88,20 +54,23 @@ module.exports = class extends Generator {
   default() {
 
     this.composeWith(require.resolve('generator-license'), {
-      name: this.model.authorName,
-      email: this.model.authorEmail,
-      website: this.model.authorUrl,
+      name: this.model.author.name,
+      email: this.model.author.email,
+      website: this.model.author.website,
       defaultLicense: this.model.license,
     });
-    
+
+    this.composeWith(require.resolve('generator-edge/generators/server'), {
+      prompt: '\nGenerating a plugin test server\n',
+      serverDir:'test-site/',
+      siteId: 'edge',
+      siteName: "Plugin Test Site",
+      siteFQDN: "localhost"
+    });
   }
 
   async writing() {
-
-    // Obtain a silent mem-fs store
-    // var store = require("mem-fs").create();
-    // var fs = require("mem-fs-editor").create(store);
-    var fs = this.fs;
+    let fs = this.fs;
 
     // Start by copying all files
     fs.copy(this.templatePath('**'), this.destinationPath(), { globOptions: { dot: true } });
@@ -114,10 +83,6 @@ module.exports = class extends Generator {
       let tmpl = _.template(fs.read(this.templatePath(filename)));
       fs.write(this.destinationPath(filename), tmpl(this.model));
     });
-
-    // Commit changes
-    // const commit = util.promisify(fs.commit.bind(fs));
-    // await commit([]);
   }
 
   end() {
@@ -128,7 +93,8 @@ module.exports = class extends Generator {
 
     this.log("");
     this.log(`Your plugin has been created.`);
-    this.log(`Run ${chalk.red("yo edge")} to start building plugin components.`)
+    this.log(`Run ${chalk.red("npm start")} to start the test server.`)
+    this.log(`Run ${chalk.red("yo edge")} to build plugin components.`)
     this.log("");
   }
 

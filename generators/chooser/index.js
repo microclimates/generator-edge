@@ -1,5 +1,6 @@
 "use strict";
 const Generator = require("yeoman-generator");
+const inquirer = require('inquirer');
 
 const firstRunGenerators = [
   { name: '1 - Edge Server', value: 'server' },
@@ -7,8 +8,15 @@ const firstRunGenerators = [
 ];
 
 const pluginGenerators = [
-  { name: '1 - Dashboards', value: 'dashboard' },
-  { name: '2 - Devices', value: 'device' },
+  { name: '1 - Device', value: 'underConstruction' },
+  { name: '2 - Panel', value: 'underConstruction' },
+  { name: '3 - Dashboard', value: 'underConstruction' },
+  { name: '4 - Web Page', value: 'underConstruction' },
+  { name: '5 - Menu Item', value: 'underConstruction' },
+  { name: '6 - Report', value: 'underConstruction' },
+  { name: '7 - Node-Red Flow', value: 'underConstruction' },
+  { name: '8 - Node-Red Node', value: 'underConstruction' },
+  new inquirer.Separator()
 ];
 
 module.exports = class extends Generator {

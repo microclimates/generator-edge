@@ -13,14 +13,15 @@ services:
       - './config/nginx/nginx.conf:/etc/nginx/nginx.conf'
       - './config/nginx/iot-edge.conf:/etc/nginx/iot-edge.conf'
       - './config/nginx/iot-edge.conf.template:/etc/nginx/iot-edge.conf.template'
-      - './config/nginx/startup.sh:/etc/nginx/startup.sh'
+      - './config/nginx/startup.sh:/startup.sh'
+      - './log/nginx:/tmp/logs'
     restart: always
     depends_on:
       - nodered
       - graphite
       - grafana
       - edge
-    command: ['sh', '-c', '/etc/nginx/startup.sh']
+    command: ['sh', '-c', '/startup.sh']
   graphite:
     image: 'graphiteapp/graphite-statsd:1.1.4'
     container_name: graphite
@@ -39,9 +40,12 @@ services:
       - './config/graphite/storage-aggregation.conf:/opt/graphite/conf/storage-aggregation.conf'
       - './config/graphite/storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf'
       - './config/graphite/statsd-config.js:/opt/statsd/config_udp.js'
-      - "./data/graphite:/opt/graphite/storage"
-      - "./data/graphite/log:/var/log"
+      - "./config/graphite/startup.sh:/startup.sh"
+      - "./data/graphite/storage:/opt/graphite/storage"
+      - "./log/graphite:/var/log"
+      - "./log/graphite:/tmp/logs"
     restart: always
+    command: ['sh', '-c', '/startup.sh']
   mqtt:
     image: 'eclipse-mosquitto:1.5'
     container_name: mqtt
@@ -54,8 +58,12 @@ services:
       - '${MQTT_WS_PORT}:9001'
     volumes:
       - './config/mqtt:/mosquitto/config'
+      - './config/mqtt/startup.sh:/startup.sh'
       - './data/mqtt:/mosquitto/data'
+      - "./log/mqtt:/var/log"
+      - "./log/mqtt:/tmp/logs"
     restart: always
+    command: ['sh', '-c', '/startup.sh']
   nodered:
     image: 'microclimates/iot-edge-node-red:1.0.7'
     container_name: nodered
@@ -67,11 +75,15 @@ services:
     # ports:
     #   - '1880:1880'
     volumes:
-      - './config/node-red/settings.js:/data/settings.js'
-      - './data/node-red:/data'
-    restart: always
+      - './config/nodered/settings.js:/data/settings.js'
+      - './config/nodered/startup.sh:/startup.sh'
+      - './data/nodered:/data'
+      - "./log/nodered:/var/log"
+      - "./log/nodered:/tmp/logs"
     depends_on:
       - "mqtt"
+    restart: always
+    command: ['sh', '-c', '/startup.sh']
   grafana:
     image: 'grafana/grafana:6.1.6'
     container_name: grafana
@@ -84,35 +96,12 @@ services:
       - "loki"
     volumes:
       - './config/grafana:/etc/grafana'
-      - './data/grafana/log:/var/log/grafana'
+      - './config/grafana/startup.sh:/startup.sh'
       - './data/grafana:/var/lib/grafana'
+      - './log/grafana:/var/log/grafana'
+      - "./log/grafana:/tmp/logs"
     restart: always
-    entrypoint: ['sh', '-c', '/etc/grafana/startup.sh']
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    volumes:
-      - './config/promtail:/etc/promtail'
-      - './data/promtail:/promdata'
-    command: -config.file=/etc/promtail/docker-config.yaml
-    networks:
-      - internal
-    # ports:
-    #   - '9080:9080'
-    depends_on:
-      - "loki"
-  loki:
-    image: 'grafana/loki:latest'
-    container_name: loki
-    networks:
-      - internal
-    # ports:
-    #   - '3100:3100'
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - './config/loki:/etc/loki'
-      - './data/loki:/tmp/loki'
-    restart: always
+    entrypoint: ['sh', '-c', '/startup.sh']
   edge:
     image: 'microclimates/iot-edge-server:2.3.2'
     container_name: edge
@@ -129,13 +118,45 @@ services:
     #   - '9002:9002'
     volumes:
       - '.:/mnt'
+      - './config/edge/startup.sh:/startup.sh'
+      - "./log/edge:/tmp/logs"
       # For iot-edge server development:
       #   git clone https://github.com/microclimates/iot-edge.git
       #   Uncomment the line below and run "npm restart"
       #   Run "docker-compose restart edge" to reload changes
       # - '/path/to/cloned/iot-edge:/usr/local/lib/node_modules/iot-edge'
-
     restart: always
+    command: ['sh', '-c', '/startup.sh']
+  loki:
+    image: 'grafana/loki:latest'
+    container_name: loki
+    networks:
+      - internal
+    # ports:
+    #   - '3100:3100'
+    volumes:
+      - './config/loki:/etc/loki'
+      - './config/loki/startup.sh:/startup.sh'
+      - './data/loki:/tmp/loki'
+      - "./log/loki:/tmp/logs"
+    restart: always
+    entrypoint: ['sh', '-c', '/startup.sh']
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - './config/promtail:/etc/promtail'
+      - './config/promtail/startup.sh:/startup.sh'
+      - './data/promtail:/promdata'
+      - "./log/promtail:/tmp/logs"
+      - './log:/log'
+    networks:
+      - internal
+    # ports:
+    #   - '9080:9080'
+    depends_on:
+      - "loki"
+    entrypoint: ['sh', '-c', '/startup.sh']
 networks:
   dmz:
     driver: bridge

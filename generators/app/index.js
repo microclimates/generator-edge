@@ -7,6 +7,7 @@ const yosay = require("yosay");
 module.exports = class extends Generator {
 
   initializing() {
+
     // First time runs the plugin generator, then the chooser
     this.projectType = this.config.get("projectType");
     this.firstRun = this.projectType == undefined;

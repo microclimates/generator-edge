@@ -1,3 +1,5 @@
+# Grafana startup
+
 sed \
   -e "s/SITE_ID/${SITE_ID}/g" \
   -e "s/SITE_FQDN/${SITE_FQDN}/g" \
@@ -10,4 +12,5 @@ sed \
   < /etc/grafana/provisioning/datasources/graphite.yaml.template \
   > /etc/grafana/provisioning/datasources/graphite.yaml
 
-exec /run.sh
+mkdir -p /tmp/logs
+exec /run.sh >> /tmp/logs/stdout.log 2>>/tmp/logs/stderr.log

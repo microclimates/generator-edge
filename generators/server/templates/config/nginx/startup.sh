@@ -3,4 +3,5 @@ sed \
   < /etc/nginx/iot-edge.conf.template \
   > /etc/nginx/iot-edge.conf
 
-exec nginx -g 'daemon off;'
+mkdir -p /tmp/logs
+exec nginx -g 'daemon off;' >> /tmp/logs/stdout.log 2>>/tmp/logs/stderr.log
