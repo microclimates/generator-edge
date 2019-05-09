@@ -40,10 +40,10 @@ services:
       - './config/graphite/storage-aggregation.conf:/opt/graphite/conf/storage-aggregation.conf'
       - './config/graphite/storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf'
       - './config/graphite/statsd-config.js:/opt/statsd/config_udp.js'
-      - "./config/graphite/startup.sh:/startup.sh"
-      - "./data/graphite/storage:/opt/graphite/storage"
-      - "./log/graphite:/var/log"
-      - "./log/graphite:/tmp/logs"
+      - './config/graphite/startup.sh:/startup.sh'
+      - './data/graphite/storage:/opt/graphite/storage'
+      - './log/graphite:/var/log'
+      - './log/graphite:/tmp/logs'
     restart: always
     command: ['sh', '-c', '/startup.sh']
   mqtt:
@@ -60,12 +60,12 @@ services:
       - './config/mqtt:/mosquitto/config'
       - './config/mqtt/startup.sh:/startup.sh'
       - './data/mqtt:/mosquitto/data'
-      - "./log/mqtt:/var/log"
-      - "./log/mqtt:/tmp/logs"
+      - './log/mqtt:/var/log'
+      - './log/mqtt:/tmp/logs'
     restart: always
     command: ['sh', '-c', '/startup.sh']
   nodered:
-    image: 'microclimates/iot-edge-node-red:1.0.7'
+    image: 'iotedge/node-red:1.0.7'
     container_name: nodered
     env_file: .env
     depends_on:
@@ -78,10 +78,10 @@ services:
       - './config/nodered/settings.js:/data/settings.js'
       - './config/nodered/startup.sh:/startup.sh'
       - './data/nodered:/data'
-      - "./log/nodered:/var/log"
-      - "./log/nodered:/tmp/logs"
+      - './log/nodered:/var/log'
+      - './log/nodered:/tmp/logs'
     depends_on:
-      - "mqtt"
+      - 'mqtt'
     restart: always
     command: ['sh', '-c', '/startup.sh']
   grafana:
@@ -93,17 +93,17 @@ services:
     # ports:
     #   - '3000:3000'
     depends_on:
-      - "loki"
+      - 'loki'
     volumes:
       - './config/grafana:/etc/grafana'
       - './config/grafana/startup.sh:/startup.sh'
       - './data/grafana:/var/lib/grafana'
       - './log/grafana:/var/log/grafana'
-      - "./log/grafana:/tmp/logs"
+      - './log/grafana:/tmp/logs'
     restart: always
     entrypoint: ['sh', '-c', '/startup.sh']
   edge:
-    image: 'microclimates/iot-edge-server:2.3.2'
+    image: 'iotedge/server:2.3.3'
     container_name: edge
     env_file: .env
     environment:
@@ -119,9 +119,9 @@ services:
     volumes:
       - '.:/mnt'
       - './config/edge/startup.sh:/startup.sh'
-      - "./log/edge:/tmp/logs"
+      - './log/edge:/tmp/logs'
       # For iot-edge server development:
-      #   git clone https://github.com/microclimates/iot-edge.git
+      #   git clone https://github.com/iot-edge/iot-edge.git
       #   Uncomment the line below and run "npm restart"
       #   Run "docker-compose restart edge" to reload changes
       # - '/path/to/cloned/iot-edge:/usr/local/lib/node_modules/iot-edge'
@@ -138,7 +138,7 @@ services:
       - './config/loki:/etc/loki'
       - './config/loki/startup.sh:/startup.sh'
       - './data/loki:/tmp/loki'
-      - "./log/loki:/tmp/logs"
+      - './log/loki:/tmp/logs'
     restart: always
     entrypoint: ['sh', '-c', '/startup.sh']
   promtail:
@@ -148,14 +148,14 @@ services:
       - './config/promtail:/etc/promtail'
       - './config/promtail/startup.sh:/startup.sh'
       - './data/promtail:/promdata'
-      - "./log/promtail:/tmp/logs"
+      - './log/promtail:/tmp/logs'
       - './log:/log'
     networks:
       - internal
     # ports:
     #   - '9080:9080'
     depends_on:
-      - "loki"
+      - 'loki'
     entrypoint: ['sh', '-c', '/startup.sh']
 networks:
   dmz:
