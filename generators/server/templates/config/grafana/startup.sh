@@ -13,4 +13,4 @@ sed \
   > /etc/grafana/provisioning/datasources/graphite.yaml
 
 mkdir -p /tmp/logs
-exec /run.sh >> /tmp/logs/stdout.log 2>>/tmp/logs/stderr.log
+exec /mon/start "/run.sh" >> /tmp/logs/stdout.log 2>>/tmp/logs/stderr.log

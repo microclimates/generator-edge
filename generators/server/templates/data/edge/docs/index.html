@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <title>${siteName}</title>
+  <link rel="shortcut icon" href="https://iot-edge.github.io/iot-edge-docs/favicon.ico" type="image/x-icon"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Open IoT Edge Server">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <style>
+    li {
+      list-style-type: none;
+    }
+    :root {
+      --code-theme-background  : #222;
+      --mono-hue               : 120;
+      --theme-color            : rgb(114, 190, 59);
+      --mark-background        : var(--theme-color);
+      --base-color             : #ccc;
+      --base-background-color  : #111;
+      --cover-color            : #fff;
+      --cover-background-color : #000;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
+
+</head>
+<body>
+  <div id="app"></div>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    let mermaidNum = 0;
+    mermaid.initialize({ startOnLoad: false });
+    window.$docsify = {
+      // GENERAL
+      // -----------------------------------------------------------------
+      name       : '<img src="https://iot-edge.github.io/iot-edge-docs/_media/iot-edge-green-bg-100.png" width="32"/><br>${siteName}',
+      coverpage  : '_coverpage.md',
+      repo       : '',
+      loadSidebar: '_sidebar.md',
+      subMaxLevel: 3,
+      plugins: [],
+      markdown: {
+        renderer: {
+          code: function(code, lang) {
+            if (lang === "mermaid") {
+              return (
+                '<div class="mermaid">' + mermaid.render('mermaid-svg-' + mermaidNum++, code) + "</div>"
+              );
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
+      },
+      tabs: {
+        persist    : false,
+        sync       : false,
+        theme      : 'material',
+        tabComments: true,
+        tabHeadings: true
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+
+</body>
+</html>

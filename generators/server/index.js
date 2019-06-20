@@ -129,7 +129,11 @@ module.exports = class extends Generator {
 
     // Apply data model to template files
     const templateFiles = [
-      ".env"
+      ".env",
+      "data/edge/docs/index.html",
+      "data/edge/docs/README.md",
+      "data/edge/docs/_coverpage.md",
+      "data/edge/docs/_sidebar.md",
     ]
     templateFiles.forEach((filename)=> {
       let tmpl = _.template(fs.read(this.templatePath(filename)));

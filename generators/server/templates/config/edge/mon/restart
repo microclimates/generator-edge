@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "-> Manually restarting based on touch-to-restart"
+pid=`cat /data/pid`
+kill -9 $pid
+sleep 5
+newpid=`cat /data/pid`
+if test "$pid" = "$newpid"
+then
+  # Speak softly and carry a big stick
+  kill -9 $pid
+fi
+> /data/touch-to-restart

@@ -1,0 +1,12 @@
+#!/bin/bash
+# Lightweight restart for rapid dev iteration
+export LD_LIBRARY_PATH=/usr/local/lib:/mon
+
+> /data/touch-to-restart
+
+# Watch the app. 
+# Putting in bg vs. using daemon mode so output goes to stdout/stderr
+/mon/mon -p /data/pid "exec $1" &
+
+# Watch the watcher
+exec /mon/mon "/mon/inotifywait /data/touch-to-restart; /mon/restart"

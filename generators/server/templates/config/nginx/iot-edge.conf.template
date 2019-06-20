@@ -15,19 +15,66 @@ upstream graphite {
   server graphite:80;
 }
 
-server {
-  listen       80;
-  root /mnt/;
-  absolute_redirect off;
-  rewrite ^/$ /SITE_ID/ redirect;
+upstream authServer {
+  server edge:9003;
+}
 
-  # Graphite
+upstream edge {
+  server edge:9002;
+}
+
+server {
+  listen 80;
+  root /mnt/;
+  set $user "-";
+  set $username "noauth";
+  set $role "Viewer";
+  absolute_redirect off;
+  rewrite ^/$ /SITE_ID/docs/ redirect;
+
+  # All edge services go through the Auth server, using
+  # Grafana for user/group management and request authorization 
+  location /auth {
+    internal;
+    proxy_set_header X-Original-URI $request_uri;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_pass http://authServer/auth;
+  }
+
+  # Redirect to login if not authenticated
+  location @error401 {
+    add_header Set-Cookie "redirect_to=$scheme://$http_host$request_uri;Path=/SITE_ID/;HttpOnly";
+    return 302 $scheme://$http_host/SITE_ID/login;
+  }
+
+  # Graphite direct
   location /SITE_ID/graphite/ {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+
     proxy_pass http://graphite;
   }
 
   # Node Red direct
   location /SITE_ID/node-red/ {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+    
     proxy_pass http://nodered;
  
     # This is for web sockets
@@ -38,7 +85,57 @@ server {
 
   # Node Red HTTP API node
   location /SITE_ID/api/plugin/ {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+
     proxy_pass http://nodered;
+  }
+
+  # Documentation pages
+  location /docs/ {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+
+  }
+  # Proxied open source documentation
+  location /docs/guides/ {
+    rewrite    /docs/guides/(.*) /iot-edge-docs/guides/$1 break;
+    proxy_pass https://iot-edge.github.io;
+  }
+
+  # Edge server API {host}/{siteId}/edge/resource...
+  location /SITE_ID/edge/ {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+
+    rewrite ^/SITE_ID/edge(.*)$ $1 break;
+    proxy_pass http://edge;
+
+    # This is for web sockets
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
   }
 
   # Remove /SITE_ID from grafana urls
@@ -48,6 +145,16 @@ server {
  
   # Default to grafana
   location / {
+
+    auth_request /auth;
+    error_page 401 = @error401;
+    auth_request_set $user $upstream_http_x_webauth_user;
+    auth_request_set $username $upstream_http_x_webauth_username;
+    auth_request_set $role $upstream_http_x_webauth_role;
+    proxy_set_header X-WEBAUTH-USER $user;
+    proxy_set_header X-WEBAUTH-USERNAME $username;
+    proxy_set_header X-WEBAUTH-ROLE $role;
+
     proxy_pass http://grafana;
     proxy_intercept_errors on;
   }
