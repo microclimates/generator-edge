@@ -12,7 +12,7 @@ const { spawn } = require('child_process');
 const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const writeFile = util.promisify(require('fs').writeFile);
-const STATS_FILE = './data/edge/stats.json';
+const STATS_FILE = './data/nodered/stats.json';
 const writeToFile = (process.argv[2] == '-f');
 let statStartStamp = 0;
 
