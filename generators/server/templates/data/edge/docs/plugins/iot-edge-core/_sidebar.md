@@ -1,3 +1,3 @@
-- [Home](/#introduction)
-- [Plugins](plugins/#plugins)
-- [IoT Edge Core](plugins/iot-edge-core/)
+- [<i class="fa fa-home ico-hd"></i> Home](/#introduction)
+- [<i class="fa fa-cloud-download-alt ico-hd"></i> Plugins](/plugins/#plugins)
+- [IoT Edge Core](/plugins/iot-edge-core/)

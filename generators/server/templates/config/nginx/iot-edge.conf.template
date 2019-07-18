@@ -29,8 +29,10 @@ server {
   set $user "-";
   set $username "noauth";
   set $role "Viewer";
+  set $github_docs "https://iot-edge.github.io";
   absolute_redirect off;
   rewrite ^/$ /SITE_ID/docs/ redirect;
+  rewrite ^/replace_with_site_id/(.*) /SITE_ID/$1 redirect;
 
   # All edge services go through the Auth server, using
   # Grafana for user/group management and request authorization 
@@ -112,9 +114,13 @@ server {
 
   }
   # Proxied open source documentation
-  location /docs/guides/ {
-    rewrite    /docs/guides/(.*) /iot-edge-docs/guides/$1 break;
-    proxy_pass https://iot-edge.github.io;
+  location /SITE_ID/docs/guides/ {
+    rewrite    /SITE_ID/docs/guides/(.*) /iot-edge-docs/guides/$1 break;
+    proxy_pass $github_docs;
+  }
+  location /SITE_ID/docs/features.md {
+    rewrite    /SITE_ID/docs/features.md /iot-edge-docs/features.md break;
+    proxy_pass $github_docs;
   }
 
   # Edge server API {host}/{siteId}/edge/resource...

@@ -4,6 +4,6 @@
 
 > Owner's Manual
 
-[Intro](#introduction)
+[Tour](#introduction)
+[Features](/features)
 [Guides](/guides/)
-[Site Pages](/site/)

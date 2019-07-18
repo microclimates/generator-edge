@@ -1,5 +1,5 @@
-- [Home](/#introduction)
-- [Site Pages](/site/#site-pages)
+- [<i class="fa fa-home ico-hd"></i> Home](/#introduction)
+- [<i class="fa fa-file-alt ico-hd"></i> Site Pages](/site/#site-pages)
 - Page Category
   - [Page 1a](/site/page-1a)
   - [Page 1b](/site/page-1b)
